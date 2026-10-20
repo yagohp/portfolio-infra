@@ -20,12 +20,13 @@ services:
     image: jenkins-controller:lts
     container_name: jenkins-controller
     restart: unless-stopped
-    user: root
+    group_add:
+      - "999"
     ports:
       - "8080:8080"
       - "50000:50000"
     env_file:
-      - ../../.env
+      - ../.env
     environment:
       # ─── Jenkins base ───
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Xmx2g -Xms512m
@@ -39,6 +40,8 @@ services:
       - ../nuget_cache:/var/jenkins_home/nuget_cache
     networks:
       - jenkins-net
+      - db-net
+      - proxy
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8080/login"]
       interval: 30s
@@ -56,3 +59,7 @@ networks:
   jenkins-net:
     name: jenkins-net
     driver: bridge
+  db-net:
+    external: true
+  proxy:
+    external: true
