@@ -1,0 +1,1 @@
+CREATE DATABASE npm_db;
