@@ -1,0 +1,78 @@
+jenkins:
+  systemMessage: |
+    Portfolio — Jenkins
+
+  numExecutors: 4
+  mode: NORMAL
+
+  views:
+    - list:
+        name: "Terraform"
+        description: "Pipelines to run Terraform scripts"
+        includeRegex: "Terraform — (DEV|STAGING|PROD)|terraform-.*"
+        columns:
+          - "status"
+          - "weather"
+          - "jobName"
+          - "lastSuccess"
+          - "lastFailure"
+          - "lastDuration"
+    - list:
+        name: ".NET API"
+        description: "Pipelines for testing and deployment of the .NET API"
+        includeRegex: "portfolio-.*"
+        columns:
+          - "status"
+          - "weather"
+          - "jobName"
+          - "lastSuccess"
+          - "lastFailure"
+          - "lastDuration"
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+
+tool:
+  git:
+    installations:
+      - name: "Default"
+        home: "/usr/bin/git"
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          # ── GitHub ────────────────────────────────────────────────
+          - basicSSHUserPrivateKey:
+              scope: GLOBAL
+              id: "github-ssh-key"
+              username: "git"
+              description: "GitHub SSH Key for repo cloning"
+              privateKeySource:
+                directEntry:
+                  privateKey: "${GITHUB_SSH_KEY}"
+
+          # ── Webhook ───────────────────────────────────────────────
+          - string:
+              scope: GLOBAL
+              id: "jenkins-webhook-token"
+              description: "Token shared with GitHub Actions"
+              secret: "${JENKINS_WEBHOOK_TOKEN}"
+
+unclassified:
+  location:
+    url: "${JENKINS_URL}"
+    adminAddress: "admin@portfolio.local"
+
+
+
+      
