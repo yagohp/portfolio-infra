@@ -37,36 +37,12 @@ jenkins:
   authorizationStrategy:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
-  crumbIssuer:
-    standard:
-      excludeClientIPFromCrumb: false
 
 tool:
   git:
     installations:
       - name: "Default"
         home: "/usr/bin/git"
-
-credentials:
-  system:
-    domainCredentials:
-      - credentials:
-          # ── GitHub ────────────────────────────────────────────────
-          - basicSSHUserPrivateKey:
-              scope: GLOBAL
-              id: "github-ssh-key"
-              username: "git"
-              description: "GitHub SSH Key for repo cloning"
-              privateKeySource:
-                directEntry:
-                  privateKey: "${GITHUB_SSH_KEY}"
-
-          # ── Webhook ───────────────────────────────────────────────
-          - string:
-              scope: GLOBAL
-              id: "jenkins-webhook-token"
-              description: "Token shared with GitHub Actions"
-              secret: "${JENKINS_WEBHOOK_TOKEN}"
 
 unclassified:
   location:
