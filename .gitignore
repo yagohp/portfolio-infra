@@ -1,6 +1,7 @@
 # Ambiente
 .env
 .env.local
+!*.env.example
 
 # IDE
 .idea/
@@ -12,3 +13,11 @@
 Thumbs.db
 
 **/certs
+
+# Jenkins
+jenkins_home/
+nuget_cache/
+
+# Backups
+*.sql.gz
+backups/
