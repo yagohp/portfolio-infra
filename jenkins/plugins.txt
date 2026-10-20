@@ -1,0 +1,43 @@
+# ─── Core ───
+configuration-as-code
+job-dsl
+git
+workflow-aggregator
+workflow-job
+workflow-cps
+workflow-basic-steps
+pipeline-model-definition
+pipeline-stage-view
+pipeline-utility-steps
+credentials
+credentials-binding
+plain-credentials
+ssh-credentials
+
+# ─── SECURITY ───
+matrix-auth 
+ssh-agent
+
+# ─── UI / Utils ───
+ansicolor
+timestamper
+ws-cleanup
+
+# ─── Docker / Agents ───
+docker-workflow
+docker-plugin
+docker-commons
+docker-java-api
+
+# ─── VCS ───
+github
+github-branch-source
+
+# ─── Folders ───
+cloudbees-folder
+
+# ─── OPTIONAL ───
+generic-webhook-trigger
+gson-api
+json-path-api
+junit

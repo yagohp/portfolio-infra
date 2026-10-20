@@ -1,0 +1,58 @@
+services:
+  # ─────────────────────────────────────────────────────────────
+  # Terraform Agent
+  # ─────────────────────────────────────────────────────────────
+  terraform-agent:
+    build:
+      context: ./agents/terraform
+      dockerfile: Dockerfile
+    image: portfolio-terraform-agent:latest
+    profiles:
+      - build-only
+
+  # ─────────────────────────────────────────────────────────────
+  # Jenkins Controller
+  # ─────────────────────────────────────────────────────────────
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jenkins-controller:lts
+    container_name: jenkins-controller
+    restart: unless-stopped
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    env_file:
+      - ../../.env
+    environment:
+      # ─── Jenkins base ───
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Xmx2g -Xms512m
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs
+      - TZ=America/Sao_Paulo
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./casc:/var/jenkins_home/casc_configs:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.aws:/root/.aws:ro
+      - ../nuget_cache:/var/jenkins_home/nuget_cache
+    networks:
+      - jenkins-net
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+volumes:
+  jenkins_home:
+    driver: local
+  nuget_cache:
+    driver: local
+
+networks:
+  jenkins-net:
+    name: jenkins-net
+    driver: bridge
