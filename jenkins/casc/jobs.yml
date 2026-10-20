@@ -1,0 +1,104 @@
+jobs:
+  - script: |
+      def envs = ['dev', 'staging', 'prod']
+      def rootConfigs = ['bootstrap', 'iam', 'api', 'dynamodb-auth']
+
+      envs.each { e ->
+        def folderName    = "terraform-" + e
+        def folderDisplay = "Terraform — " + e.toUpperCase()
+
+        folder(folderName) {
+          displayName(folderDisplay)
+          description("Pipelines Terraform in " + e)
+        }
+
+        rootConfigs.each { r ->
+          def jobName    = folderName + "/" + r
+          def jobDisplay = r + " (" + e + ")"
+
+          pipelineJob(jobName) {
+            displayName(jobDisplay)
+            description("Pipeline " + r + " in " + e)
+
+            parameters {
+              choiceParam('ACTION', ['plan', 'apply', 'destroy'], 'Ação')
+              booleanParam('RUN_TESTS', true, 'Run terraform test')
+            }
+
+            definition {
+              cpsScm {
+                scm {
+                  git {
+                    remote {
+                      # USE CREDENTIAL BY ID
+                      url('git@github.com:yagohp/portfolio-infra.git')
+                      credentials('github-ssh-key') 
+                    }
+                    branch('*/main')
+                  }
+                }
+                scriptPath('jobs/repo.Jenkinsfile')
+                lightweight(true)
+              }
+            }
+          }
+        }
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      //  PORTFOLIO API — .NET
+      // ═══════════════════════════════════════════════════════════
+
+      folder('portfolio-api') {
+          displayName('Portfolio API')
+          description('Pipelines portfolio-dotnet-api')
+      }
+
+      pipelineJob('portfolio-api/integration-tests') {
+          displayName('Integration Tests')
+          description('Run integration tests for portfolio-dotnet-api.')
+
+          logRotator {
+              numToKeep(30)
+              artifactNumToKeep(10)
+          }
+
+          triggers {
+              genericTrigger {
+                  token(System.getenv('JENKINS_WEBHOOK_TOKEN') ?: 'portfolio-e2e-2026')
+                  causeString('GitHub Actions — $REPO@$GIT_SHA ($GIT_REF_NAME)')
+                  printContributedVariables(true)
+                  printPostContent(true)
+                  silentResponse(false)
+
+                  genericVariables {
+                      genericVariable { key('REPO') value('$.repository') expressionType('JSONPath') }
+                      genericVariable { key('GIT_SHA') value('$.sha') expressionType('JSONPath') }
+                      genericVariable { key('GIT_REF_NAME') value('$.ref_name') expressionType('JSONPath') }
+                      genericVariable { key('RUN_URL') value('$.run_url') expressionType('JSONPath') }
+                      genericVariable { key('VERSION') value('$.version') expressionType('JSONPath') }
+                  }
+              }
+          }
+
+          parameters {
+              stringParam('REPO_OVERRIDE', '', 'Override repo')
+              stringParam('REF_OVERRIDE', '', 'Override ref/sha')
+          }
+
+          definition {
+              cpsScm {
+                  scm {
+                      git {
+                          remote {
+                              url('git@github.com:yagohp/portfolio-dotnet-api.git')
+                              credentials('github-ssh-key')
+                          }
+                          branch('*/main')
+                      }
+                  }
+                  scriptPath('Jenkinsfile.integration')
+                  lightweight(true)
+              }
+          }
+      }
