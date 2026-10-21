@@ -62,22 +62,22 @@ jobs:
               artifactNumToKeep(10)
           }
 
-          triggers {
-              genericTrigger {
-                  token(System.getenv('JENKINS_WEBHOOK_TOKEN') ?: 'portfolio-e2e-2026')
-                  causeString('GitHub Actions — $REPO@$GIT_SHA ($GIT_REF_NAME)')
-                  printContributedVariables(true)
-                  printPostContent(true)
-                  silentResponse(false)
-
-                  genericVariables {
-                      genericVariable { key('REPO') value('$.repository') expressionType('JSONPath') }
-                      genericVariable { key('GIT_SHA') value('$.sha') expressionType('JSONPath') }
-                      genericVariable { key('GIT_REF_NAME') value('$.ref_name') expressionType('JSONPath') }
-                      genericVariable { key('RUN_URL') value('$.run_url') expressionType('JSONPath') }
-                      genericVariable { key('VERSION') value('$.version') expressionType('JSONPath') }
-                  }
-              }
+          configure { jobXml ->
+            jobXml / 'triggers' << 'org.jenkinsci.plugins.gwt.GenericTrigger' {
+                spec('')
+                token(System.getenv('JENKINS_WEBHOOK_TOKEN'))
+                causeString('GitHub Actions — $REPO@$GIT_SHA ($GIT_REF_NAME)')
+                printContributedVariables(true)
+                printPostContent(true)
+                silentResponse(false)
+                genericVariables {
+                    genericVariable { key('REPO')         value('$.repository') expressionType('JSONPath') }
+                    genericVariable { key('GIT_SHA')      value('$.sha')        expressionType('JSONPath') }
+                    genericVariable { key('GIT_REF_NAME') value('$.ref_name')   expressionType('JSONPath') }
+                    genericVariable { key('RUN_URL')      value('$.run_url')    expressionType('JSONPath') }
+                    genericVariable { key('VERSION')      value('$.version')    expressionType('JSONPath') }
+                }
+            }
           }
 
           parameters {
