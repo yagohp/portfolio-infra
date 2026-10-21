@@ -5,6 +5,11 @@ echo "[1/5] Configuring user permissions for $USER..."
 
 # Add the current user to the docker's group
 sudo usermod -aG docker "$USER" 2>/dev/null || true
+
+# Fix ownership of ~/.docker (avoids "permission denied" on config.json
+# after previous "sudo docker" runs left the directory owned by root)
+sudo chown -R "$USER":"$USER" "$HOME/.docker" 2>/dev/null || true
+
 echo "Permission applied."
 
 echo "[2/5] Installing Docker dependencies..."
