@@ -30,7 +30,6 @@ jobs:
                 scm {
                   git {
                     remote {
-                      # USE CREDENTIAL BY ID
                       url('git@github.com:yagohp/portfolio-infra.git')
                       credentials('github-ssh-key') 
                     }
