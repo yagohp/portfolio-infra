@@ -37,7 +37,7 @@ jobs:
                     branch('*/main')
                   }
                 }
-                scriptPath('jobs/repo.Jenkinsfile')
+                scriptPath('jenkins/jobs/repo.Jenkinsfile')
                 lightweight(true)
               }
             }
